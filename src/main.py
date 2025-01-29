@@ -231,7 +231,7 @@ class ContentPoster:
             sRFC_option.click()
 
             logger.info("Waiting for the body input field to be visible")
-            body_input = WebDriverWait(self.driver, 100).until(
+            body_input = WebDriverWait(self.driver, 300).until(
                 EC.visibility_of_element_located((By.XPATH, "//textarea[@aria-label='Type here. Use Markdown, BBCode, or HTML to format. Drag or paste images.']"))
             )
             logger.info("Entering content into the body input field")
