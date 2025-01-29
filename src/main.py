@@ -2,6 +2,7 @@ import os
 import time
 import json
 import logging
+import tempfile
 from typing import Optional
 import requests
 from selenium import webdriver
@@ -35,27 +36,54 @@ class ContentPoster:
         ]
         self._validate_env_vars()
 
-        # Initialize Selenium WebDriver options for better reliability
+        # Initialize Chrome options with necessary flags for running in cloud environment
         chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--headless')  # Run in headless mode
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--disable-extensions')
         chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--disable-extensions')
+        chrome_options.add_argument('--disable-software-rasterizer')
+        chrome_options.add_argument('--remote-debugging-port=9222')
 
-        # Add a unique user data directory to avoid conflicts
-        chrome_options.add_argument(f'--user-data-dir=/tmp/chrome-user-data-{int(time.time())}')
+        # Create a temporary directory for user data
+        temp_dir = tempfile.mkdtemp()
+        chrome_options.add_argument(f'--user-data-dir={temp_dir}')
         
-        # Initialize WebDriver
-        self.driver = webdriver.Chrome(
-            service=ChromeService(ChromeDriverManager().install()),
-            options=chrome_options
-        )
-        
-        # Increase implicit wait time
-        self.driver.implicitly_wait(10)
-        
+        try:
+            self.driver = webdriver.Chrome(
+                service=ChromeService(ChromeDriverManager().install()),
+                options=chrome_options
+            )
+            # Set page load timeout
+            self.driver.set_page_load_timeout(30)
+            # Set script timeout
+            self.driver.set_script_timeout(30)
+            # Increase implicit wait time
+            self.driver.implicitly_wait(10)
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize Chrome driver: {e}")
+            raise
+
         self.session = requests.Session()
         self.token = None
+        self.temp_dir = temp_dir  # Store the temp directory path for cleanup
+
+    def __del__(self):
+        """Cleanup method to ensure proper resource handling."""
+        try:
+            if hasattr(self, 'driver'):
+                self.driver.quit()
+        except Exception as e:
+            logger.error(f"Error while closing driver: {e}")
+        
+        try:
+            if hasattr(self, 'temp_dir') and os.path.exists(self.temp_dir):
+                import shutil
+                shutil.rmtree(self.temp_dir, ignore_errors=True)
+        except Exception as e:
+            logger.error(f"Error while removing temporary directory: {e}")
 
     def _validate_env_vars(self) -> None:
         """Validate that all required environment variables are set."""
