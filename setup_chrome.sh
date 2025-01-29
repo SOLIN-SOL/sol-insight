@@ -25,16 +25,16 @@ if [[ ! -d "${STORAGE_DIR}/google-chrome" ]]; then
     log "Downloading Chrome"
     cd "${STORAGE_DIR}"
     
-    # Install dependencies (Ubuntu 24.04 specific)
+    # Install dependencies (Ubuntu 24.04 specific with t64 suffix)
     log "Installing dependencies"
     sudo apt-get update
     sudo apt-get install -y wget libnss3 fonts-liberation \
-        libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 \
-        libcairo2 libcups2 libdbus-1-3 libdrm2 libexpat1 \
-        libgbm1 libglib2.0-0 libnspr4 libpango-1.0-0 \
+        libasound2t64 libatk-bridge2.0-0t64 libatk1.0-0t64 libatspi2.0-0t64 \
+        libcairo2 libcups2t64 libdbus-1-3 libdrm2 libexpat1 \
+        libgbm1 libglib2.0-0t64 libnspr4 libpango-1.0-0 \
         libx11-6 libxcb1 libxcomposite1 libxdamage1 \
         libxext6 libxfixes3 libxrandr2 libxshmfence1 x11-utils \
-        xdg-utils libgtk-3-0
+        xdg-utils libgtk-3-0t64
     
     # Download Chrome
     if ! wget -q -P ./ "${CHROME_URL}"; then
