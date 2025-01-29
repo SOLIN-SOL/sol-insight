@@ -36,35 +36,52 @@ if [[ ! -d "${STORAGE_DIR}/google-chrome" ]]; then
         libxext6 libxfixes3 libxrandr2 libxshmfence1 x11-utils \
         xdg-utils libgtk-3-0t64
     
-    # Download Chrome
-    if ! wget -q -P ./ "${CHROME_URL}"; then
-        log "ERROR: Failed to download Chrome"
+    # Download Chrome with retry
+    log "Downloading Chrome package"
+    for i in {1..3}; do
+        if wget --no-verbose --show-progress "${CHROME_URL}"; then
+            break
+        fi
+        log "Download attempt $i failed, retrying..."
+        sleep 2
+    done
+
+    # Verify the package is complete
+    if ! dpkg-deb -I "${CHROME_DEB}" >/dev/null 2>&1; then
+        log "ERROR: Downloaded package is corrupted"
+        rm -f "${CHROME_DEB}"
         exit 1
     fi
-    
-    # Extract Chrome
-    if ! ar x "./${CHROME_DEB}"; then
-        log "ERROR: Failed to extract .deb package"
-        exit 1
-    fi
-    
-    if ! tar -xf data.tar.xz -C "${STORAGE_DIR}"; then
-        log "ERROR: Failed to extract Chrome files"
-        exit 1
-    fi
+
+    # Install using dpkg instead of manual extraction
+    log "Installing Chrome package"
+    sudo dpkg -i "${CHROME_DEB}" || {
+        log "Installing missing dependencies"
+        sudo apt-get -f install -y
+        sudo dpkg -i "${CHROME_DEB}"
+    }
     
     # Cleanup
     log "Cleaning up installation files"
-    rm -f "./${CHROME_DEB}" "data.tar.xz" "debian-binary" "control.tar.gz" "control.tar.xz"
+    rm -f "${CHROME_DEB}"
 else
     log "Using existing Chrome installation from cache"
 fi
 
 # Add Chrome to PATH if not already present
-CHROME_BIN="/home/ubuntu/chrome/opt/google/chrome"
-if [[ ":$PATH:" != *":${CHROME_BIN}:"* ]]; then
+CHROME_BIN="/usr/bin/google-chrome"
+if [[ ":$PATH:" != *":${dirname $CHROME_BIN}:"* ]]; then
     log "Adding Chrome to PATH"
-    export PATH="${PATH}:${CHROME_BIN}"
+    export PATH="${PATH}:$(dirname ${CHROME_BIN})"
 fi
 
 log "Chrome installation complete"
+
+# Verify installation
+if command -v google-chrome >/dev/null 2>&1; then
+    log "Chrome installation verified successfully"
+    google-chrome --version
+else
+    log "ERROR: Chrome installation could not be verified"
+    exit 1
+fi
