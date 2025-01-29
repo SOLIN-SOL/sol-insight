@@ -5,7 +5,7 @@ set -o errexit
 set -o nounset
 
 # Configuration
-STORAGE_DIR="/home/ubuntu/chrome"  # Changed from /home/bitnami to /home/ubuntu
+STORAGE_DIR="/home/ubuntu/chrome"
 CHROME_DEB="google-chrome-stable_current_amd64.deb"
 CHROME_URL="https://dl.google.com/linux/direct/${CHROME_DEB}"
 
@@ -25,10 +25,16 @@ if [[ ! -d "${STORAGE_DIR}/google-chrome" ]]; then
     log "Downloading Chrome"
     cd "${STORAGE_DIR}"
     
-    # Install dependencies (Ubuntu-specific)
+    # Install dependencies (Ubuntu 24.04 specific)
     log "Installing dependencies"
     sudo apt-get update
-    sudo apt-get install -y wget libnss3 libgconf-2-4
+    sudo apt-get install -y wget libnss3 fonts-liberation \
+        libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 \
+        libcairo2 libcups2 libdbus-1-3 libdrm2 libexpat1 \
+        libgbm1 libglib2.0-0 libnspr4 libpango-1.0-0 \
+        libx11-6 libxcb1 libxcomposite1 libxdamage1 \
+        libxext6 libxfixes3 libxrandr2 libxshmfence1 x11-utils \
+        xdg-utils libgtk-3-0
     
     # Download Chrome
     if ! wget -q -P ./ "${CHROME_URL}"; then
@@ -55,7 +61,7 @@ else
 fi
 
 # Add Chrome to PATH if not already present
-CHROME_BIN="/home/ubuntu/chrome/opt/google/chrome"  # Changed path to match ubuntu user
+CHROME_BIN="/home/ubuntu/chrome/opt/google/chrome"
 if [[ ":$PATH:" != *":${CHROME_BIN}:"* ]]; then
     log "Adding Chrome to PATH"
     export PATH="${PATH}:${CHROME_BIN}"
