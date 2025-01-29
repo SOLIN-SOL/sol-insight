@@ -8,10 +8,10 @@ if [[ ! -d $STORAGE_DIR/chrome ]]; then
   echo "...Downloading Chrome"
   mkdir -p $STORAGE_DIR/chrome
   cd $STORAGE_DIR/chrome
-  wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
-  sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-  apt-get update
-  apt-get install -y google-chrome-stable
+  wget -P ./ https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  ar x ./google-chrome-stable_current_amd64.deb
+  tar -xvf data.tar.xz -C $STORAGE_DIR/chrome
+  rm ./google-chrome-stable_current_amd64.deb control.tar.gz data.tar.xz debian-binary
   cd $HOME/project/src # Make sure we return to where we were
 else
   echo "...Using Chrome from cache"
