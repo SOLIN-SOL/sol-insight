@@ -42,6 +42,9 @@ class ContentPoster:
         chrome_options.add_argument('--disable-extensions')
         chrome_options.add_argument('--disable-gpu')
 
+        # Add a unique user data directory to avoid conflicts
+        chrome_options.add_argument('--user-data-dir=/tmp/chrome-user-data')
+        
         # Initialize WebDriver
         self.driver = webdriver.Chrome(
             service=ChromeService(ChromeDriverManager().install()),
