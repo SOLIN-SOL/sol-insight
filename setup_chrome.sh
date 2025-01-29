@@ -10,8 +10,8 @@ if [[ ! -d $STORAGE_DIR/chrome ]]; then
   cd $STORAGE_DIR/chrome
   wget -P ./ https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
   ar x ./google-chrome-stable_current_amd64.deb
-  tar -xvf data.tar.xz -C $STORAGE_DIR/chrome  rm ./google-chrome-stable_current_amd64.deb data.tar.xz debian-binary
-  rm ./google-chrome-stable_current_amd64.deb data.tar.xz debian-binary
+  tar -xvf data.tar.xz -C $STORAGE_DIR/chrome || true
+  rm -f ./google-chrome-stable_current_amd64.deb data.tar.xz debian-binary
   if [ -f control.tar.gz ]; then
     rm control.tar.gz
   fi
