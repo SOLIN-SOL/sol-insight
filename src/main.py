@@ -41,7 +41,7 @@ class ContentPoster:
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--disable-extensions')
         chrome_options.add_argument('--disable-gpu')
-        
+
         # Initialize WebDriver
         self.driver = webdriver.Chrome(
             service=ChromeService(ChromeDriverManager().install()),
@@ -200,7 +200,7 @@ class ContentPoster:
             sRFC_option.click()
 
             logger.info("Waiting for the body input field to be visible")
-            body_input = WebDriverWait(self.driver, 10).until(
+            body_input = WebDriverWait(self.driver, 100).until(
                 EC.visibility_of_element_located((By.XPATH, "//textarea[@aria-label='Type here. Use Markdown, BBCode, or HTML to format. Drag or paste images.']"))
             )
             logger.info("Entering content into the body input field")
